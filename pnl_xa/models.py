@@ -1,4 +1,3 @@
-
 from django.db import models
 
 class DatasAx(models.Model):
@@ -7,7 +6,7 @@ class DatasAx(models.Model):
     user_agent = models.TextField(null=True, blank=True)
     cookie = models.TextField(null=True, blank=True)
     data = models.TextField(null=True, blank=True)
-    url_completa = models.TextField(null=True, blank=True)
+    url_completa = models.TextField(null=True, blank=True)  # 👈 Con "a" al final
     
     def __str__(self):
         return f"Date {self.fecha} - IP: {self.ip}"
