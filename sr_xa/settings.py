@@ -112,5 +112,25 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
+LOGIN_URL = '/login'  # Página de login
+LOGIN_REDIRECT_URL = '/panel'  # A dónde redirigir después de login
+LOGOUT_REDIRECT_URL = '/login' 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+if not DEBUG:
+    try:
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        import os
+        
+        username = os.getenv('ADMIN_USERNAME', 'admin')
+        email = os.getenv('ADMIN_EMAIL', 'admin@admin.com')
+        password = os.getenv('ADMIN_PASSWORD', 'admin123456')
+        
+        if not User.objects.filter(username=username).exists():
+            User.objects.create_superuser(username, email, password)
+            print(f'✅ Superusuario "{username}" creado automáticamente')
+    except:
+        pass  # Si falla, no pasa nada

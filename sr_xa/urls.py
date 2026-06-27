@@ -5,6 +5,8 @@ from pnl_xa import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     # Ruta principal del atacante
     path('', views.index, name='index'),
     
