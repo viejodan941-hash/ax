@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🕵️ Panel del Hacker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #e94560;
+            text-align: center;
+        }
+        .total {
+            text-align: center;
+            font-size: 18px;
+            color: #4caf50;
+            margin-bottom: 20px;
+        }
+        .robo {
+            background: #16213e;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #e94560;
+            transition: all 0.3s;
+        }
+        .robo:hover {
+            background: #1a2745;
+        }
+        .robo .fecha {
+            color: #888;
+            font-size: 12px;
+        }
+        .robo .ip {
+            color: #4fc3f7;
+        }
+        .robo .cookie {
+            color: #ffd700;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .robo .data {
+            color: #81c784;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .robo .user-agent {
+            color: #ce93d8;
+            font-size: 12px;
+        }
+        .robo .url {
+            color: #90caf9;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .badge {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #e94560;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #c73e54;
+        }
+        .btn-verde {
+            background: #4caf50;
+        }
+        .btn-verde:hover {
+            background: #388e3c;
+        }
+        .sin-datos {
+            text-align: center;
+            color: #888;
+            padding: 40px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+        .stat {
+            background: #16213e;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat .num {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e94560;
+        }
+        .stat .label {
+            font-size: 12px;
+            color: #888;
+        }
+        .expandir {
+            cursor: pointer;
+            color: #4fc3f7;
+            font-size: 12px;
+        }
+        .expandir:hover {
+            text-decoration: underline;
+        }
+        .detalle {
+            display: none;
+            margin-top: 10px;
+            background: #0d1b2a;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .detalle.mostrar {
+            display: block;
+        }
+        .buscar {
+            margin: 20px 0;
+        }
+        .buscar input {
+            padding: 10px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #0d1b2a;
+            color: white;
+        }
+        .buscar input:focus {
+            outline: 2px solid #e94560;
+        }
+        .acciones {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .volver {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #333;
+            color: #eee;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .volver:hover {
+            background: #555;
+        }
+        .empty-icon {
+            font-size: 80px;
+            margin: 20px 0;
+        }
+        code {
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .text-gold {
+            color: #ffd700;
+        }
+        .text-green {
+            color: #81c784;
+        }
+        .text-blue {
+            color: #90caf9;
+        }
+        .text-purple {
+            color: #ce93d8;
+        }
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .stats {
+                justify-content: center;
+            }
+            .acciones {
+                justify-content: center;
+            }
+            .buscar input {
+                max-width: 100%;
+            }
+            .robo {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕵️ Panel del Hacker</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="num">{{ total }}</div>
+                    <div class="label">Datos robados</div>
+                </div>
+                <div class="stat">
+                    <div class="num">{{ robos.count }}</div>
+                    <div class="label">Víctimas</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="acciones">
+            <button class="btn btn-verde" onclick="window.location.reload()">🔄 Actualizar</button>
+            <form action="/cln" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button class="btn" onclick="return confirm('¿Eliminar todos los datos robados?')">🗑️ Limpiar</button>
+            </form>
+            <button class="btn" onclick="exportarJSON()">📤 Exportar JSON</button>
+            <a href="/" class="volver">🏠 Volver</a>
+        </div>
+        
+        <div class="buscar">
+            <input type="text" id="buscar" placeholder="🔍 Buscar por IP, cookie, data..." onkeyup="filtrar()">
+        </div>
+        
+        {% if robos %}
+            <div id="lista-robos">
+                {% for robo in robos %}
+                <div class="robo" data-ip="{{ robo.ip }}" data-cookie="{{ robo.cookie }}" data-data="{{ robo.data }}">
+                    <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 5px;">
+                        <div>
+                            <span class="fecha">📅 {{ robo.fecha|date:"d/m/Y H:i:s" }}</span>
+                            <span class="ip">🌐 {{ robo.ip }}</span>
+                            <span class="badge">ID: {{ robo.id }}</span>
+                        </div>
+                        <span class="expandir" onclick="toggleDetalle(this)">▶ Ver más</span>
+                    </div>
+                    <div class="user-agent">📱 {{ robo.user_agent|truncatechars:80 }}</div>
+                    <div class="cookie">🍪 <strong>Cookie:</strong> {{ robo.cookie|truncatechars:150 }}</div>
+                    <div class="data">📦 <strong>Data:</strong> {{ robo.data|truncatechars:150 }}</div>
+                    <div class="url">🔗 <strong>URL:</strong> {{ robo.url_completa|truncatechars:80 }}</div>
+                    
+                    <div class="detalle">
+                        <strong>🍪 Cookie completa:</strong><br>
+                        <code class="text-gold" style="word-break: break-all;">{{ robo.cookie }}</code>
+                        <br><br>
+                        <strong>📦 Data completa:</strong><br>
+                        <code class="text-green" style="word-break: break-all;">{{ robo.data }}</code>
+                        <br><br>
+                        <strong>🔗 URL completa:</strong><br>
+                        <code class="text-blue" style="word-break: break-all;">{{ robo.url_completa }}</code>
+                        <br><br>
+                        <strong>📱 User-Agent completo:</strong><br>
+                        <code class="text-purple" style="word-break: break-all;">{{ robo.user_agent }}</code>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="sin-datos">
+                <h2>😴 No hay datos robados todavía</h2>
+                <p>Esperando que alguna víctima caiga en el ataque...</p>
+                <div class="empty-icon">🎣</div>
+                <p style="color: #666;">Para probar, usá el enlace malvado desde el sitio vulnerable.</p>
+                <p style="color: #666; font-size: 12px; margin-top: 10px;">
+                    <strong>Endpoint:</strong> /stl?cookie=...&amp;data=...&amp;url=...
+                </p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        function toggleDetalle(elemento) {
+            const detalle = elemento.parentElement.parentElement.querySelector('.detalle');
+            detalle.classList.toggle('mostrar');
+            elemento.textContent = detalle.classList.contains('mostrar') ? '▶ Ocultar' : '▶ Ver más';
+        }
+        
+        function filtrar() {
+            const busqueda = document.getElementById('buscar').value.toLowerCase();
+            const robos = document.querySelectorAll('.robo');
+            
+            robos.forEach(robo => {
+                const ip = robo.dataset.ip ? robo.dataset.ip.toLowerCase() : '';
+                const cookie = robo.dataset.cookie ? robo.dataset.cookie.toLowerCase() : '';
+                const data = robo.dataset.data ? robo.dataset.data.toLowerCase() : '';
+                
+                if (ip.includes(busqueda) || cookie.includes(busqueda) || data.includes(busqueda)) {
+                    robo.style.display = 'block';
+                } else {
+                    robo.style.display = 'none';
+                }
+            });
+        }
+        
+        function exportarJSON() {
+            window.location.href = '/api/stl';
+        }
+        
+        // Auto-actualizar el contador cada 10 segundos
+        setInterval(() => {
+            fetch('/api/stl')
+                .then(response => response.json())
+                .then(data => {
+                    // Actualizar el número en el header
+                    const numElement = document.querySelector('.stat .num');
+                    if (numElement) {
+                        numElement.textContent = data.length;
+                    }
+                    console.log('🔄 Actualizado: ' + data.length + ' datos');
+                })
+                .catch(error => console.log('⚠️ Error al actualizar:', error));
+        }, 10000);
+    </script>
+</body>
+</html>
