@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🔐 Acceso al Panel - Hacker</title>
-    <style>
+    <title>Access</title>
+    <!-- <style>
         * {
             margin: 0;
             padding: 0;
@@ -128,19 +128,19 @@
             font-size: 48px;
             margin-bottom: 20px;
         }
-    </style>
+    </style> -->
 </head>
 <body>
     <div class="login-container">
-        <div class="icon-lock">🔐</div>
+        <div class="icon-lock"></div>
         <h1>
-            Panel del Hacker
-            <span>Ingresa tus credenciales</span>
+            Panel fasju
+            <span>Cred</span>
         </h1>
         
         {% if form.errors %}
         <div class="error-message">
-            ❌ Usuario o contraseña incorrectos. Intentá de nuevo.
+            wrong user get out focker
         </div>
         {% endif %}
         
@@ -148,22 +148,22 @@
             {% csrf_token %}
             
             <div class="form-group">
-                <label for="id_username">👤 Usuario</label>
-                <input type="text" name="username" id="id_username" placeholder="Ingresa tu usuario" required autofocus>
+                <label for="id_username">User</label>
+                <input type="text" name="username" id="id_username" placeholder="give me ur usr" required autofocus>
             </div>
             
             <div class="form-group">
-                <label for="id_password">🔑 Contraseña</label>
-                <input type="password" name="password" id="id_password" placeholder="Ingresa tu contraseña" required>
+                <label for="id_password">pwd</label>
+                <input type="password" name="password" id="id_password" placeholder="give me ur pwd" required>
             </div>
             
-            <button type="submit" class="btn-login">🚀 Acceder al Panel</button>
+            <button type="submit" class="btn-login">Access</button>
             
             <input type="hidden" name="next" value="{{ next }}">
         </form>
         
         <div class="info">
-            🔒 Acceso restringido - Solo para personal autorizado
+            Access only users
         </div>
     </div>
 </body>
