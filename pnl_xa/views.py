@@ -39,7 +39,7 @@ def logout_view(request):
 # ============================================================
 
 @csrf_exempt 
-@login_required(login_url='/login')  # 👈 NUEVO: protege esta ruta
+# @login_required(login_url='/login')  # 👈 NUEVO: protege esta ruta
 def rcb_stl(request):
     if request.method == 'GET':
        
