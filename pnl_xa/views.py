@@ -81,7 +81,7 @@ def panel_h(request):
     }
     return render(request, 'pnl.html', context)
 
-
+@login_required(login_url='/login')
 def index(request):
     total = DatasAx.objects.count()
     last_stl = DatasAx.objects.first()
